@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # pylint:disable=unused-import
-"""
-RASL
+"""RASL
 ====
 
 Align linearly correlated images with gross corruption such as occlusions.
@@ -13,10 +12,14 @@ Y. Peng, A. Ganesh, J. Wright, W. Xu, Y. Ma, "Robust Alignment by
    Sparse and Low-rank Decomposition for Linearly Correlated Images",
    IEEE Transactions on Pattern Analysis and Machine Intelligence (PAMI) 2011
 
+Classes
+-------
+SimilarityTransform, AffineTransform, ProjectiveTransform --
+    extended versions of skimage.transform classes for use in alignment
+
 Functions
 ---------
 rasl -- align a set of linearly correlated images
-pcp -- decompose a matrix into a sum of dense low-rank and sparse error
 
 Author
 ------
@@ -24,7 +27,6 @@ Will Welch (github@quietplease.com)
 
 """
 from .version import __version__, VERSION
-from .tform import (TranslateTransform, ScaleTransform, RotateTransform,
-                    SimilarityTransform, AffineTransform, ProjectiveTransform)
+from .tform import SimilarityTransform, AffineTransform, ProjectiveTransform
 from .jacobian import framed_gradient, warp_image_gradient, approx_jacobian
 from .rasl import rasl

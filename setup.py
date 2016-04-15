@@ -28,7 +28,8 @@ setup(name='rasl',
       ],
       install_requires=[
           "numpy",
-          "skimage"
+          "scipy",
+          "scikit-image"
       ],
       tests_require=[
           "pytest"
@@ -38,11 +39,9 @@ setup(name='rasl',
       ],
       extras_require={
           # console_script entry points read and write images
-          "IO":  ["imageio"],
       },
       entry_points={
           "console_scripts": [
-              "rasl = rasl.application:rasl_cmd [IO]",
           ],
       }
 )
