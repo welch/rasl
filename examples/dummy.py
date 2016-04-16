@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# pylint:disable=invalid-name
 """Dummy
 
 The dummy head alignment example from [1].
@@ -17,81 +18,23 @@ on transformed eye distances).
 """
 from __future__ import division, print_function
 import os
-import numpy as np
-import skimage.io as skio
-import scipy.io as scio
-from skimage.util import img_as_float
 import matplotlib.pyplot as plt
 import rasl
-from argparse import ArgumentParser
-from textwrap import dedent
-
-def load_dummys(path):
-    """load the dummy image set
-
-    Parameters
-    ----------
-    path : string
-        file path to dummy image directory
-
-    Returns
-    -------
-    images : list[100] of ndarray(h,v)
-        dummy images as ndarrays
-    bounds : list[100] of ndarray(2, 2)
-        coordinates of eye corner points as columns
-
-    """
-    images = [img_as_float(skio.imread(os.path.join(path, fname), as_grey=True))
-              for fname in os.listdir(path) if fname.endswith('bmp')]
-    bounds = [scio.loadmat(os.path.join(path, fname))['points']
-              for fname in os.listdir(path) if fname.endswith('mat')]
-    return images, bounds
+from rasl.application import rasl_arg_parser
 
 if __name__ == "__main__":
 
     dummy_dir = os.path.join(os.path.dirname(os.path.dirname(rasl.__file__)),
                              "data/Dummy_59_59")
-    parser = ArgumentParser(
-        usage="usage: %(prog)s [options]",
+    parser = rasl_arg_parser(
         description="Align dummy images using RASL",
+        frame=5,
+        path=dummy_dir
     )
-    parser.add_argument(
-        "--tform", default="affine",
-        choices=('similarity', 'affine', 'projective'),
-        help="transform type to use for aligning. (%(default)s)")
-    parser.add_argument(
-        "--nshow", default=30, type=int, choices=range(10, 110, 10),
-        help="subset of images to display (%(default)s)")
-    parser.add_argument(
-        "--stop", type=float, default=0.005,
-        help="halt when objective changes less than this (%(default)s)")
-    parser.add_argument(
-        "--cval", type=float, default=0,
-        help="value to use for boundary image pixels (%(default)s)")
-    framespec = parser.add_mutually_exclusive_group()
-    framespec.add_argument(
-        "--inset", type=int, default=5,
-        help=dedent("""\
-        inset images by this many pixels to avoid going out
-        of bounds during alignment (%(default)s)"""))
-    parser.add_argument(
-        "--noise", type=float, default=0,
-        help="percentage noise to add to images (%(default)s)")
-    parser.add_argument(
-        "--path", default=dummy_dir,
-        help="path to directory containing dummy images (%(default)s)")
     args = parser.parse_args()
-
-    TFormClass = {'similarity' : rasl.SimilarityTransform,
-                  'affine' : rasl.AffineTransform,
-                  'projective' : rasl.SimilarityTransform}[args.tform]
-    nrows = int(np.ceil(args.nshow / 10))
-    show = (nrows, 10) if args.nshow else None
-    Image, _ = load_dummys(args.path)
-    T = [TFormClass().inset(image.shape, args.inset, crop=False)
+    Image = rasl.load_images(args.path)
+    T = [args.tform().inset(image.shape, args.frame)
          for image in Image]
-    _ = rasl.rasl(Image, T, stop_delta=args.stop, show=show, cval=args.cval)
-    if show:
-        print("click the image to exit")
-        plt.waitforbuttonpress()
+    _ = rasl.rasl(Image, T, stop_delta=args.stop, show=args.grid)
+    print("click the image to exit")
+    plt.waitforbuttonpress()

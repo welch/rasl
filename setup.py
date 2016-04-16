@@ -38,10 +38,11 @@ setup(name='rasl',
           "pytest-runner"
       ],
       extras_require={
-          # console_script entry points read and write images
+          "PLOT":  ["matplotlib"]
       },
       entry_points={
           "console_scripts": [
+              "rasl.demo = rasl.application:demo_cmd [PLOT]",
           ],
       }
 )

@@ -33,14 +33,15 @@ def show_images(Image, shape, title="", spacing=2):
         number of pixels spacing between tiled images
 
     """
-    (rows, cols), (hgt, wid) = shape, Image[0].shape
+    imshape = (np.max([image.shape[0] for image in Image]),
+               np.max([image.shape[1] for image in Image]))
+    (rows, cols), (hgt, wid) = shape, imshape
     bhgt, bwid = (hgt + spacing, wid + spacing)
     composite = np.ones((bhgt * rows, bwid * cols)) * np.nan
-    Image = [[Image[row * cols + col]
-              for col in range(cols)] for row in range(rows)]
     for row, col in product(range(rows), range(cols)):
-        composite[row * bhgt:row * bhgt + hgt,
-                  col * bwid:col * bwid + wid] = Image[row][col]
+        image = Image[row * cols + col]
+        composite[row * bhgt:row * bhgt + image.shape[0],
+                  col * bwid:col * bwid + image.shape[1]] = image
 
     if not imgarrays.has_key(title):
         # allocate a new row beneath existing imgarrays

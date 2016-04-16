@@ -20,6 +20,7 @@ SimilarityTransform, AffineTransform, ProjectiveTransform --
 Functions
 ---------
 rasl -- align a set of linearly correlated images
+load_images -- load images and correspondence points from a directory
 
 Author
 ------
@@ -30,3 +31,4 @@ from .version import __version__, VERSION
 from .tform import SimilarityTransform, AffineTransform, ProjectiveTransform
 from .jacobian import framed_gradient, warp_image_gradient, approx_jacobian
 from .rasl import rasl
+from .application import load_images
