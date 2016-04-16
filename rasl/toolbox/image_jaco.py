@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint:disable=invalid-name
+# pylint:disable=invalid-name, too-many-locals
 """Image Jacobians wrt various parametric domain transformations
 
 Python translation of RASL_toolbox/image_Jaco.m from the MATLAB code

@@ -4,10 +4,8 @@
 
 Batch image alignment at fixed resolution (Algorithm 1 in [1]).
 
-Python implemention of the core of rasl_main.m from MATLAB code at
-[2].  rasl_main.m implements a more elaborate multi-resolution
-alignment than described in Algorithm 1 in [1]. The iteration
-described in the paper has been factored out and placed here.
+Python implemention based on rasl_main.m from MATLAB code at [2], but
+without multiresolution support.
 
 References
 ----------
@@ -21,12 +19,12 @@ References
 from __future__ import division, print_function
 import numpy as np
 from skimage.util import img_as_float
-from .rasl_inner_ialm import rasl_inner_ialm
+from .inner import inner_ialm
 from .jacobian import framed_gradient, warp_image_gradient
 from .tform import AffineTransform
 
 def rasl(Image, InitT=None, maxiter=1000, stop_delta=0.01,
-         normalize=True, show=None, cval=np.nan):
+         normalize=True, show=None):
     """Batch image alignment: RASL main loop
 
     Parameters
@@ -45,11 +43,6 @@ def rasl(Image, InitT=None, maxiter=1000, stop_delta=0.01,
         if True, normalize transformed images and their gradients
     show : tuple or None
         Display intermediate image alignments.
-    cval : real
-        fill image boundaries with this value. default NaN causes a
-        ValueError to be thrown for transformations that zoom/pan
-        beyond image bounds. Set this to 0 -- or any real value --
-        to avoid the exception (but your solution will be questionable)
 
     Returns
     -------
@@ -84,31 +77,28 @@ def rasl(Image, InitT=None, maxiter=1000, stop_delta=0.01,
     while itr < maxiter:
         itr = itr + 1
         TImage, J = zip(*[
-            warp_image_gradient(tf, im, ix, iy, normalize=normalize, cval=cval)
+            warp_image_gradient(tf, im, ix, iy, normalize=normalize)
             for tf, im, ix, iy in zip(T, Image, Image_x, Image_y)])
-        if not np.all(np.isfinite(np.array(J))):
-            print("WHOA Bad Jacobian")
-            break
-        if not np.all(np.isfinite(np.array(TImage))):
-            print("WHOA Bad Image")
-            break
-        A, E, dParamv = rasl_inner_ialm(TImage, J)
-
-        # how are we doing?
-        nuclear = np.linalg.norm(np.linalg.svd(A)[1], 1)
-        objective = nuclear + lambd * np.linalg.norm(E, 1)
-        # XXX dont do abs here
-        if np.abs(prev_obj - objective) < stop_delta:
-            break
+        A, E, dParamv = inner_ialm(TImage, J)
 
         # take the step in parameter space
         for tform, dparamv in zip(T, dParamv):
             tform.paramv = tform.paramv + dparamv
 
+        # how are we doing?
+        nuclear = np.linalg.norm(np.linalg.svd(A)[1], 1)
+        objective = nuclear + lambd * np.linalg.norm(E, 1)
         if show:
             _show_outer(A, E, shape, show)
             print("[{}] nuclear {} objective {} delta{}".format(
                 itr, nuclear, objective, prev_obj-objective))
+
+        if np.abs(prev_obj - objective) < stop_delta:
+            # The use of abs() here is more stringent than the MATLAB
+            # implementation, but solves an early termination problem
+            # (and occasionally runs overlong). Needs work.
+            break
+
         prev_obj = objective
 
     Norm = [np.sqrt(np.linalg.norm(image, 'fro')) for image in Image]

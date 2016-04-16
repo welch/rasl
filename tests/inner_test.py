@@ -4,7 +4,7 @@
 from __future__ import division, print_function
 import pytest
 import numpy as np
-from rasl.rasl_inner_ialm import rasl_inner_ialm
+from rasl.inner import inner_ialm
 from skimage.util import img_as_float
 import skimage.io as io
 from rasl import (warp_image_gradient,
@@ -32,7 +32,7 @@ def inner_aligned(Ttype, inset=10):
     Image = [image0 for _ in range(N)]
     TI, J = zip(*[warp_image_gradient(insetT, image, normalize=True)
                   for image in Image])
-    _, _, dParamv = rasl_inner_ialm(TI, J, tol=1e-4)
+    _, _, dParamv = inner_ialm(TI, J, tol=1e-4)
     # for this test, verify that all images have same dParamv
     # (inner insists on stepping dParamv a small amount when all images
     # are aligned, so image comparisons are no good)
@@ -54,7 +54,7 @@ def inner_jittered(T, inset=10, rtol=1e-3, atol=0):
     T = [tform.inset(image0.shape, inset) for tform in T]
     TImage, J = zip(*[warp_image_gradient(tform, image, normalize=True)
                       for tform, image in zip(T, Image)])
-    _, _, dParamv = rasl_inner_ialm(TImage, J, tol=1e-4)
+    _, _, dParamv = inner_ialm(TImage, J, tol=1e-4)
 
     # does dParamv move towards alignment? check if stdev of
     # parameters decreased.

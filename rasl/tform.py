@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# pylint:disable=invalid-name, too-many-instance-attributes
 """Parameter vector mixin for skimage.transform classes
 
 The constructors for skimage.transforms (which we are substituting for
@@ -180,9 +181,9 @@ class ParamvMixin(object):
         bounds = np.where(bounds < 0, shape + bounds, bounds) # negative idxs
         if crop:
             scale = (1, 1)
-            self._output_shape = bounds[1] - bounds[0] + 1
+            self._output_shape = bounds[1, :] - bounds[0, :] + 1
         else:
-            scale = (bounds[1] - bounds[0]) / (shape - 1)
+            scale = (bounds[1, :] - bounds[0, :]) / (shape - 1)
             self._output_shape = shape
         framemat = parameters_to_projective_matrix(
             # swap x and y indices here

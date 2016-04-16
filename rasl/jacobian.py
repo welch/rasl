@@ -48,13 +48,11 @@ def framed_gradient(tform, image):
 
     """
     ih, iv = image_gradient(image, 'h'), image_gradient(image, 'v')
-    grad = np.vstack((ih.flatten(), iv.flatten(), np.zeros(image.size)))
-    # XXX do this with 2x2
-    fgrad = tform.frame.dot(grad)
+    fgrad = tform.frame[:2, :2].dot(np.vstack((ih.flatten(), iv.flatten())))
     return fgrad[0, :].reshape(image.shape), fgrad[1, :].reshape(image.shape)
 
 def warp_image_gradient(tform, image, image_x=None, image_y=None,
-                        normalize=True, cval=0):
+                        normalize=True):
     """transform and normalize image and its gradients
 
     Parameters
@@ -69,8 +67,6 @@ def warp_image_gradient(tform, image, image_x=None, image_y=None,
         framed image gradient, y direction
     normalize : bool
         if True, normalize transformed images and their gradients
-    cval : real
-        constant value to use beyond boundary.
 
     Returns
     -------
@@ -83,10 +79,10 @@ def warp_image_gradient(tform, image, image_x=None, image_y=None,
     """
     if image_x is None:
         image_x, image_y = framed_gradient(tform, image)
-    timage = tform.imtransform(image, cval=cval)
+    timage = tform.imtransform(image)
     vimage = timage.flatten()
-    vimage_x = np.nan_to_num(tform.imtransform(image_x).flatten())
-    vimage_y = np.nan_to_num(tform.imtransform(image_y).flatten())
+    vimage_x = tform.imtransform(image_x).flatten()
+    vimage_y = tform.imtransform(image_y).flatten()
 
     if normalize:
         norm = np.linalg.norm(vimage)

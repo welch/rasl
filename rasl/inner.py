@@ -25,8 +25,8 @@ from __future__ import division, print_function
 import numpy as np
 import numpy.linalg as LA
 
-def rasl_inner_ialm(Image, J=None, lambd=None, mu=None, rho=None, tol=1e-6,
-                    maxiter=1000, show=False):
+def inner_ialm(Image, J=None, lambd=None, mu=None, rho=None, tol=1e-6,
+               maxiter=1000, show=False):
     """RASL inner loop[1].
 
     compute A, E, and deltaTau that minimize
