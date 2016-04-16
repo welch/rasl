@@ -4,9 +4,6 @@
 
 commandline batch alignment published as an entry point in setup.py
 
-(matplotlib is not a listed package dependency, but is required
- when commands are invoked with the --plot option.)
-
 """
 from __future__ import division, print_function
 import os

@@ -105,7 +105,8 @@ class ParamvMixin(object):
 
         """
         self._matrix = np.array(matrix, copy=True, dtype=float)
-        self._paramv = projective_matrix_to_parameters(self._ttype, self._matrix)
+        self._paramv = projective_matrix_to_parameters(
+            self._ttype, self._matrix)
         self.params = self.frame.dot(self.matrix)
 
     @property

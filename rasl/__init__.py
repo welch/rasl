@@ -12,15 +12,15 @@ Y. Peng, A. Ganesh, J. Wright, W. Xu, Y. Ma, "Robust Alignment by
    Sparse and Low-rank Decomposition for Linearly Correlated Images",
    IEEE Transactions on Pattern Analysis and Machine Intelligence (PAMI) 2011
 
-Classes
--------
-SimilarityTransform, AffineTransform, ProjectiveTransform --
-    extended versions of skimage.transform classes for use in alignment
-
 Functions
 ---------
 rasl -- align a set of linearly correlated images
 load_images -- load images and correspondence points from a directory
+
+Classes
+-------
+SimilarityTransform, AffineTransform, ProjectiveTransform --
+    extended versions of skimage.transform classes for use in alignment
 
 Author
 ------

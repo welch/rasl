@@ -2,7 +2,7 @@ rasl
 ====
 [![Build Status][travis-image]][travis-url] [![PyPI version][pypi-image]][pypi-url] [![PyPI download][download-image]][pypi-url]
 
-Align linearly correlated images with gross corruption such as occlusions.
+Align linearly correlated images, possibly having gross corruption or occlusions.
 
 `rasl` is a python implementation of the batch image alignment technique
 described in:
@@ -18,10 +18,10 @@ facial images at varying angles, some including eyeglasses or
 hair). RASL seeks transformations or deformations that will best
 superimpose a batch of images, with pixel accuracy where possible. It
 solves this problem by decomposing the image matrix into a dense
-low-rank component (analogous to "eigenfaces" in facial alignments)
-combined with a sparse error matrix representing any occlusions. The
-decomposition is accomplished with a robust form of PCA via Principal
-Components Pursuit.
+low-rank component (analogous to "eigenfaces" in face-recognition
+literature) combined with a sparse error matrix representing any
+occlusions. The decomposition is accomplished with a robust form of
+PCA via Principal Components Pursuit.
 
 Precise alignment like this is required by (or at least improves the
 performance of) many different facial decomposition and recognition
@@ -29,12 +29,12 @@ algorithms. RASL is thus a useful preprocessing step for a training
 set of images, rather than a complete facial
 extraction/decomposition/recognition system.
 
-The paper, data used in the paper, and a reference MATLAB
+The paper, the data used in the paper, and a reference MATLAB
 implementation are available from the paper's authors at
 http://perception.csl.illinois.edu/matrix-rank/rasl.html
 
 (This python implementation is based on that MATLAB implementation but
-is otherwise independent its authors)
+is otherwise independent of its authors)
 
 Quick Start
 -----------
