@@ -28,7 +28,7 @@ def inner_aligned(Ttype, inset=10):
     """don't mess (much) with a stack of aligned images"""
     N = 40
     image0 = gauss_image()
-    insetT = Ttype().inset_shape(image0.shape, inset)
+    insetT = Ttype().inset(image0.shape, inset)
     Image = [image0 for _ in range(N)]
     TI, J = zip(*[warp_image_gradient(insetT, image, normalize=True)
                   for image in Image])
@@ -51,7 +51,7 @@ def inner_jittered(T, inset=10, rtol=1e-3, atol=0):
     """move a stack of jittered noisy images in the direction of aligned"""
     image0 = gauss_image()
     Image = [image0 + image_noise(image0, p=.05) for _ in T]
-    T = [tform.inset_shape(image0.shape, inset) for tform in T]
+    T = [tform.inset(image0.shape, inset) for tform in T]
     TImage, J = zip(*[warp_image_gradient(tform, image, normalize=True)
                       for tform, image in zip(T, Image)])
     _, _, dParamv = rasl_inner_ialm(TImage, J, tol=1e-4)

@@ -122,9 +122,10 @@ def approx_jacobian(tform, image, delta=0.01):
     """
     if not isinstance(delta, np.ndarray):
         delta = np.ones(len(tform.paramv)) * delta
-    gradvecs = np.empty((image.size, len(tform.paramv)))
+    npixels = np.prod(tform.output_shape)
+    gradvecs = np.empty((npixels, len(tform.paramv)))
     for i in range(len(tform.paramv)):
-        dimage = np.zeros_like(image)
+        dimage = np.zeros(tform.output_shape)
         for sign in (-1, 1):
             paramv = tform.paramv.copy()
             paramv[i] += delta[i] * sign

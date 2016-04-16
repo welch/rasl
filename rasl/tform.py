@@ -141,7 +141,7 @@ class ParamvMixin(object):
             timage = np.where(np.isfinite(timage), timage, cval)
         return timage
 
-    def inset_shape(self, shape, frame, output_shape=None):
+    def inset(self, shape, frame, crop=True):
         """configure a framing transformation.
 
         incorporate a framing transform such that when imtransform is
@@ -154,28 +154,40 @@ class ParamvMixin(object):
         Parameters
         ----------
         shape : tuple
-            image dimensions
-        frame : real or (real(2), real(2))
-            pixel-width of boundary (single number), or boundary points
-            (minimum and maximum points) as pixel offsets into the image,
-            values ranging [0, max-1]. Negative values are subtracted from
+            input image shape
+        frame : real or real(2) or (real(2), real(2))
+            pixel-width of inset boundary (single number), cropped image
+            size (tuple, centered) or boundary points (minimum and
+            maximum included points) as pixel offsets into the image,
+            ranging [0, max-1]. Negative values are subtracted from
             the dimension size, as with python array indexing.
-        output_shape : tuple or None
-            crop the output image to these dimensions. If None, same as shape
+            NOTE: frame tuples are organized [y,x] (ie, row, col) like all
+            other image indexing.
+        crop : bool
+            if True, the output shape is set to the implied inset frame.
+            if False, the inset image will be zoomed to fill the input shape
 
         """
+        shape = np.array(shape, dtype=float)
         bounds = np.array(frame, dtype=float)
         if not bounds.shape:
-            bounds = np.array(((frame, frame), (-frame - 1, -frame - 1)),
-                              dtype=float)
-        bounds = np.where(bounds < 0, shape + bounds, bounds)
-        shape = np.array(shape, dtype=float)
-        scale = (bounds[1, :] - bounds[0, :]) / (shape - 1)
-        frame = parameters_to_projective_matrix(
-            'affine', [scale[0], 0, bounds[0, 0], 0, scale[1], bounds[0, 1]])
-        self._frame = frame
-        self.params = frame.dot(self.matrix)
-        self._output_shape = shape if output_shape is None else output_shape
+            # inset a fixed pixel width
+            bounds = np.array(((bounds, bounds), (-bounds - 1, -bounds - 1)))
+        elif bounds.size == 2:
+            # center and crop to size
+            inset = (shape - bounds) / 2
+            bounds = np.array((np.floor(inset), np.floor(-inset -1)))
+        bounds = np.where(bounds < 0, shape + bounds, bounds) # negative idxs
+        if crop:
+            scale = (1, 1)
+            self._output_shape = bounds[1] - bounds[0] + 1
+        else:
+            scale = (bounds[1] - bounds[0]) / (shape - 1)
+            self._output_shape = shape
+        framemat = parameters_to_projective_matrix(
+            # swap x and y indices here
+            'affine', [scale[1], 0, bounds[0, 1], 0, scale[0], bounds[0, 0]])
+        self.frame = framemat
         return self
 
 class TranslateTransform(ParamvMixin, tf.SimilarityTransform):

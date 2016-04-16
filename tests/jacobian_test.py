@@ -30,14 +30,14 @@ def dummy_image():
 
 def test_similarity():
     image = gradient_image(20)
-    tform = SimilarityTransform([.5, .1, 1, 2]).inset_shape(image.shape, 4)
+    tform = SimilarityTransform([.5, .1, 1, 2]).inset(image.shape, 4)
     aj = approx_jacobian(tform, image)
     _, jvec = warp_image_gradient(tform, image, normalize=False)
     assert np.allclose(aj, jvec, equal_nan=True, atol=1e-2)
 
 def test_affine():
     image = gradient_image(100)
-    tform = AffineTransform([.75, .1, 0, .5, -.1, 3]).inset_shape(image.shape,10)
+    tform = AffineTransform([.75, .1, 0, .5, -.1, 3]).inset(image.shape,10)
     aj = approx_jacobian(tform, image)
     _, jvec = warp_image_gradient(tform, image, normalize=False)
     assert np.allclose(aj, jvec, equal_nan=True, atol=1e-2)
@@ -45,7 +45,7 @@ def test_affine():
 def test_projective():
     image = gradient_image(100)
     tform = ProjectiveTransform([.75, .1, 1, .5, -.1, 3, .0, .0])
-    tform = tform.inset_shape(image.shape, 10)
+    tform = tform.inset(image.shape, 10)
     aj = approx_jacobian(tform, image,
                          delta=[.01, .01, .01, .01, .01, .01, .00001, .00001])
     _, jvec = warp_image_gradient(tform, image, normalize=False)
@@ -55,17 +55,15 @@ def test_frame_scale():
     dim = 30
     image = gradient_image(dim)
     bounds = ((5, 6), (-7, -10))
-    tform = AffineTransform([1, 0, 0, .5, 0, 0]).inset_shape(image.shape, bounds)
+    tform = AffineTransform([1, 0, 0, .5, 0, 0]).inset(image.shape, bounds)
     framed = tform.imtransform(image)
     aj = approx_jacobian(tform, image)
     _, jvec = warp_image_gradient(tform, image, normalize=False)
-    print(np.where(np.abs(aj - jvec) > .01))
-    print(np.max((np.abs(aj - jvec))))
     assert np.allclose(aj, jvec, equal_nan=True, atol=1e-2)
 
 def test_frame_rot():
     image = gradient_image(10)
-    tform = SimilarityTransform([1, np.pi/2, 0, 0]).inset_shape(image.shape, 5)
+    tform = SimilarityTransform([1, np.pi/2, 0, 0]).inset(image.shape, 5)
     aj = approx_jacobian(tform, image)
     _, jvec = warp_image_gradient(tform, image, normalize=False)
     assert np.allclose(aj, jvec, equal_nan=True, atol=1e-2)

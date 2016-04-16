@@ -8,8 +8,8 @@ from rasl.toolbox import (projective_matrix_to_parameters,
                           parameters_to_projective_matrix)
 from rasl import SimilarityTransform, AffineTransform, ProjectiveTransform
 
-def gradient_image(dim=20):
-    return np.outer(np.arange(dim), np.arange(dim, dtype=float))
+def gradient_image(dim=20, offset=100):
+    return np.outer(np.arange(dim),  offset + np.arange(dim, dtype=float))
 
 def test_translation():
     paramv = [10, 20]
@@ -55,31 +55,74 @@ def test_tform_projective():
     assert np.all(mat == t.matrix)
     assert not np.all(mat == ProjectiveTransform().matrix)
 
-def test_tform_inset_pixels():
-    dim = 20
+def test_tform_inset_pixels_crop():
+    dim, offset = 20, 100
     for pixels in range(2, 10):
-        image = gradient_image(dim)
-        tform = SimilarityTransform().inset_shape(image.shape, pixels)
+        image = gradient_image(dim, offset)
+        tform = SimilarityTransform().inset(image.shape, pixels)
         framed = tform.imtransform(image)
-        assert np.isclose(framed[0,0], pixels ** 2)
-        assert np.isclose(framed[-1, -1], (dim - 1 - pixels) ** 2)
+        assert np.all(framed.shape == np.array(image.shape) - 2 * pixels)
+        assert np.isclose(framed[0,0], image[pixels, pixels])
+        assert np.isclose(framed[-1, -1],
+                          image[dim - 1 - pixels, dim - 1 - pixels])
 
-def test_tform_inset_bounds():
-    dim = 20
-    bounds = ((3, 4), (-5, -6))
-    image = gradient_image(dim)
-    #image = np.vstack([np.arange(dim).astype('float') for _ in range(dim)])
-    tform = SimilarityTransform().inset_shape(image.shape, bounds)
+def test_tform_inset_pixels_nocrop():
+    dim, offset = 20, 100
+    for pixels in range(2, 10):
+        image = gradient_image(dim, offset)
+        tform = SimilarityTransform().inset(image.shape, pixels, crop=False)
+        framed = tform.imtransform(image)
+        assert np.all(framed.shape == image.shape)
+        assert np.isclose(framed[0,0], image[pixels, pixels])
+        assert np.isclose(framed[-1, -1],
+                          image[dim - 1 - pixels, dim - 1 - pixels])
+
+def test_tform_inset_size_nocrop():
+    dim, offset = 20, 100
+    bounds = (10, 5) # -> (5, 7), (14, 11)
+    image = gradient_image(dim, offset)
+    tform = AffineTransform().inset(image.shape, bounds, crop=False)
     framed = tform.imtransform(image)
-    assert np.isclose(framed[0, 0], 3 * 4)
-    assert np.isclose(framed[-1, -1], (dim - 6) * (dim - 5))
+    assert np.all(framed.shape == image.shape)
+    assert np.isclose(framed[0, 0], image[5, 7])
+    assert np.isclose(framed[-1, -1], image[14, 11])
+
+def test_tform_inset_size_crop():
+    dim, offset = 20, 100
+    bounds = (10, 5) # -> (5, 7), (14, 11)
+    image = gradient_image(dim, offset)
+    tform = AffineTransform().inset(image.shape, bounds)
+    framed = tform.imtransform(image)
+    assert np.all(framed.shape == bounds)
+    assert np.isclose(framed[0, 0], image[5, 7])
+    assert np.isclose(framed[-1, -1], image[14, 11])
+
+def test_tform_inset_bounds_crop():
+    dim, offset = 20, 100
+    bounds = ((3, 4), (-5, -6)) # -> (3, 4) (15, 14)
+    image = gradient_image(dim, offset)
+    tform = SimilarityTransform().inset(image.shape, bounds)
+    framed = tform.imtransform(image)
+    assert np.all(framed.shape == (20 - 5 + 1 - 3, 20 - 6 + 1 - 4) )
+    assert np.isclose(framed[0, 0], image[3, 4])
+    assert np.isclose(framed[-1, -1], image[15, 14])
+
+def test_tform_inset_bounds_nocrop():
+    dim, offset = 20, 100
+    bounds = ((5, 4), (-5, -4)) # -> (5, 4) (15, 16)
+    image = gradient_image(dim, offset)
+    tform = SimilarityTransform().inset(image.shape, bounds, crop=False)
+    framed = tform.imtransform(image)
+    assert np.all(framed.shape == image.shape)
+    assert np.isclose(framed[0, 0], image[5, 4])
+    assert np.isclose(framed[-1, -1], image[15, 16])
 
 def test_tform_inset_scale_bounds():
-    dim = 30
-    bounds = ((5, 6), (-7, -10))
-    image = gradient_image(dim)
-    tform = AffineTransform([1, 0, 0, .5, 0, 0]).inset_shape(image.shape, bounds)
+    dim, offset = 30, 100
+    bounds = ((5, 6), (-7, -10)) # -> [[  5.   6.]  [ 23.  20.]]
+    image = gradient_image(dim, offset)
+    tform = AffineTransform([1, 0, 0, .5, 0, 0]).inset(image.shape, bounds, crop=False)
     framed = tform.imtransform(image)
-    assert np.isclose(framed[0, 0], 5 * 6)
-    midvalue = (5 + (dim - 7 - 5)) * (6 + .5 * (dim - 10 - 6))
+    assert np.isclose(framed[0, 0], image[5, 6])
+    midvalue = image[(5 + 23) / 2, 20]
     assert np.isclose(framed[-1, -1], midvalue)

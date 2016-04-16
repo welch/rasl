@@ -65,7 +65,7 @@ def rasl(Image, InitT=None, maxiter=1000, stop_delta=0.01,
 
     """
     if InitT is None:
-        T = [AffineTransform().inset_shape(image.shape, 5) for image in Image]
+        T = [AffineTransform().inset(image.shape, 5) for image in Image]
     else:
         T = [tform.clone() for tform in InitT]
     Image = [img_as_float(image) for image in Image]
