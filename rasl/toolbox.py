@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# pylint:disable=invalid-name, too-many-locals
 """
 RASL_toolbox
 ====
@@ -47,6 +48,13 @@ def parameters_to_projective_matrix(ttype, xi=None):
                       [np.sin(theta), np.cos(theta)]])
         T = np.eye(3)
         T[0:2, 0:2] = R
+    elif ttype == 'euclidean':
+        theta, offset_x, offset_y = xi
+        R = np.array([[np.cos(theta), -np.sin(theta)],
+                      [np.sin(theta), np.cos(theta)]])
+        T = np.eye(3)
+        T[0:2, 0:2] = R
+        T[:2, 2] = [offset_x, offset_y]
     elif ttype == 'similarity':
         scale, theta, offset_x, offset_y = xi
         R = np.array([[np.cos(theta), -np.sin(theta)],
@@ -89,6 +97,14 @@ def projective_matrix_to_parameters(ttype, T):
         if T[1, 0] < 0:
             theta = -theta
         xi = np.array([theta])
+    elif ttype == 'euclidean':
+        xi = np.empty(3)
+        theta = np.arccos(T[0, 0])
+        if T[1, 0] < 0:
+            theta = -theta
+        xi[0] = theta
+        xi[1] = T[0, 2]
+        xi[2] = T[1, 2]
     elif ttype == 'similarity':
         xi = np.empty(4)
         sI = T[0:2, 0:2].T.dot(T[0:2, 0:2])
@@ -145,6 +161,13 @@ def image_jaco(Iu, Iv, img_size, ttype, paramv):
                    -np.cos(theta) * v) +
              Iv * (np.cos(theta) * u +
                    -np.sin(theta) * v)]
+    elif ttype == 'euclidean':
+        # paramv = [rotation, offset_x, offset_y]
+        theta, _, _ = paramv
+        J = [Iu * (-np.sin(theta) * u - np.cos(theta) * v) +
+             Iv * (np.cos(theta) * u - np.sin(theta) * v),
+             Iu,
+             Iv]
     elif ttype == 'similarity':
         # paramv = [scale, rotation, offset_x, offset_y]
         scale, theta, _, _ = paramv

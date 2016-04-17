@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint:disable=invalid-name, too-many-instance-attributes
+# pylint:disable=invalid-name, too-many-instance-attributes, missing-docstring
 """Parameter vector mixin for skimage.transform classes
 
 The constructors for skimage.transforms (which we are substituting for
@@ -19,7 +19,7 @@ from .toolbox import (projective_matrix_to_parameters,
 class ParamvMixin(object):
     """parameter vector mixin for tf.ProjectiveTransform"""
 
-    ttype = None # override with 'affine', 'similarity', 'projective', etc
+    ttype = None # override with 'affine', 'euclidean', 'similarity', etc
 
     def __init__(self, paramv=None, matrix=None, *args, **kwargs):
         super(ParamvMixin, self).__init__(matrix=matrix, *args, **kwargs)
@@ -176,6 +176,10 @@ class ScaleTransform(ParamvMixin, tf.SimilarityTransform):
 class RotateTransform(ParamvMixin, tf.SimilarityTransform):
     """tf.SimilarityTransform with rotation only"""
     ttype = 'rotate'
+
+class EuclideanTransform(ParamvMixin, tf.SimilarityTransform):
+    """tf.SimilarityTransform with fixed scale"""
+    ttype = 'euclidean'
 
 class SimilarityTransform(ParamvMixin, tf.SimilarityTransform):
     """tf.SimilarityTransform with a paramv"""

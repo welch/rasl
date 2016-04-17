@@ -6,7 +6,8 @@ from __future__ import division, print_function
 import numpy as np
 from rasl.toolbox import (projective_matrix_to_parameters,
                           parameters_to_projective_matrix)
-from rasl import SimilarityTransform, AffineTransform, ProjectiveTransform
+from rasl import (EuclideanTransform, SimilarityTransform, AffineTransform,
+                  ProjectiveTransform)
 
 def gradient_image(dim=20, offset=100):
     return np.outer(np.arange(dim),  offset + np.arange(dim, dtype=float))
@@ -30,6 +31,14 @@ def test_projective():
     paramv = np.arange(8)
     mat = parameters_to_projective_matrix('projective', paramv)
     assert np.all(paramv == projective_matrix_to_parameters('projective', mat))
+
+def test_tform_euclidean():
+    paramv = [np.pi / 3, 10, 20]
+    t = EuclideanTransform(paramv)
+    assert np.all(paramv == t.paramv)
+    mat = parameters_to_projective_matrix('euclidean', paramv)
+    assert np.all(mat == t.matrix)
+    assert not np.all(mat == EuclideanTransform().matrix)
 
 def test_tform_similarity():
     paramv = [2, np.pi / 3, 10, 20]

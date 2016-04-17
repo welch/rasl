@@ -28,7 +28,8 @@ Will Welch (github@quietplease.com)
 
 """
 from .version import __version__, VERSION
-from .tform import SimilarityTransform, AffineTransform, ProjectiveTransform
+from .tform import (EuclideanTransform, SimilarityTransform,
+                    AffineTransform, ProjectiveTransform)
 from .jacobian import framed_gradient, warp_image_gradient, approx_jacobian
 from .rasl import rasl
 from .application import load_images

@@ -2,12 +2,9 @@
 #
 # pylint:disable=import-error
 from __future__ import division, print_function
-import pytest
 import numpy as np
 from rasl.inner import inner_ialm
-from skimage.util import img_as_float
-import skimage.io as io
-from rasl import (warp_image_gradient,
+from rasl import (warp_image_gradient, EuclideanTransform,
                   SimilarityTransform, AffineTransform, ProjectiveTransform)
 
 def setup_function(_):
@@ -41,6 +38,9 @@ def inner_aligned(Ttype, inset=10):
 def test_inner_aligned_similarity():
     inner_aligned(SimilarityTransform)
 
+def test_inner_aligned_euclidean():
+    inner_aligned(EuclideanTransform)
+
 def test_inner_aligned_affine():
     inner_aligned(AffineTransform)
 
@@ -65,6 +65,15 @@ def inner_jittered(T, inset=10, rtol=1e-3, atol=0):
     afterStd = np.std(after, 0)
     assert np.all(np.logical_or(afterStd < beforeStd,
                                 np.isclose(after, before, rtol=rtol, atol=atol)))
+
+def test_inner_jittered_euclidean():
+    N = 40
+    dtheta, dx, dy= .05, 1, 1
+    Jitters = [[(np.random.random() * 2 - 1) * dtheta,
+                (np.random.random() * 2 - 1) * dx,
+                (np.random.random() * 2 - 1) * dy]
+               for _ in range(N)]
+    inner_jittered([EuclideanTransform(paramv=jitter) for jitter in Jitters])
 
 def test_inner_jittered_similarity():
     N = 40

@@ -122,7 +122,6 @@ def inner_ialm(Image, J=None, lambd=None, mu=None, rho=None, tol=1e-6,
 
     print("completed {} inner iterations, rank={}"\
           .format(itr+1, np.sum(shrink_s > 0)))
-    #R = [np.eye(r.shape[0]) if np.all(np.isclose(r, 0.0)) else r for r in R]
     Dt = [np.linalg.inv(r).dot(dt) for r, dt in zip(R, Dt)]
     return A, E, Dt
 
