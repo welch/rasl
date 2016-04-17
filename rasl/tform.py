@@ -19,19 +19,19 @@ from .toolbox import (projective_matrix_to_parameters,
 class ParamvMixin(object):
     """parameter vector mixin for tf.ProjectiveTransform"""
 
-    _ttype = None # override with 'affine', 'similarity', 'projective', etc
+    ttype = None # override with 'affine', 'similarity', 'projective', etc
 
     def __init__(self, paramv=None, matrix=None, *args, **kwargs):
         super(ParamvMixin, self).__init__(matrix=matrix, *args, **kwargs)
-        self._frame = np.eye(3)
-        self._output_shape = None
+        self.__frame = np.eye(3)
+        self.output_shape = None
         if matrix is not None:
             self.matrix = matrix
         elif paramv is not None:
             self.paramv = paramv
         else:
             self.paramv = projective_matrix_to_parameters(
-                self._ttype, np.eye(3)) # init with identity transform
+                self.ttype, np.eye(3)) # init with identity transform
 
     def clone(self, paramv=None):
         """safely copy the tform
@@ -54,67 +54,40 @@ class ParamvMixin(object):
             cln.paramv = paramv
         return cln
 
-    @property
-    def ttype(self):
-        """get the ttype of this transform
-
-        """
-        return self._ttype
-
+    # paramv is a projection-specific vector of parameters, giving rise
+    # to a 3x3 projection matrix
     @property
     def paramv(self):
-        """get the parameter vector of this transform
-
-        """
-        return self._paramv
+        return self.__paramv
 
     @paramv.setter
     def paramv(self, paramv):
-        """set the parameter vector of this transform
-
-        """
-        self._paramv = np.array(paramv, copy=True, dtype=float)
-        self._matrix = parameters_to_projective_matrix(self._ttype, paramv)
+        self.__paramv = np.array(paramv, copy=True, dtype=float)
+        self.__matrix = parameters_to_projective_matrix(self.ttype, paramv)
         self.params = self.frame.dot(self.matrix)
 
-    @property
-    def frame(self):
-        """get the 3x3 framing matrix of this transform
-
-        """
-        return self._frame
-
-    @frame.setter
-    def frame(self, frame):
-        """set the 3x3 framing matrix of this transform
-
-        """
-        self._frame = np.array(frame, copy=True, dtype=float)
-        self.params = self.frame.dot(self.matrix)
-
+    # matrix is the transform's 3x3 matrix form
     @property
     def matrix(self):
-        """get the 3x3 projection matrix of this transform
-
-        """
-        return self._matrix
+        return self.__matrix
 
     @matrix.setter
     def matrix(self, matrix):
-        """set the 3x3 matrix of this transform
-
-        """
-        self._matrix = np.array(matrix, copy=True, dtype=float)
-        self._paramv = projective_matrix_to_parameters(
-            self._ttype, self._matrix)
+        self.__matrix = np.array(matrix, copy=True, dtype=float)
+        self.__paramv = projective_matrix_to_parameters(
+            self.ttype, self._matrix)
         self.params = self.frame.dot(self.matrix)
 
+    # frame is a 3x3 projection that sets up the initial zooming/cropping
+    # of an image before transforms are piled onto it with paramv/matrix
     @property
-    def output_shape(self):
-        """get output shape of this transform
+    def frame(self):
+        return self.__frame
 
-        """
-        return self._output_shape
+    @frame.setter
+    def frame(self, frame):
+        self.__frame = np.array(frame, copy=True, dtype=float)
+        self.params = self.frame.dot(self.matrix)
 
     def imtransform(self, image, order=3, cval=0, *args, **kwargs):
         """tranform an image, with output image having same shape as input.
@@ -182,10 +155,10 @@ class ParamvMixin(object):
         bounds = np.where(bounds < 0, shape + bounds, bounds) # negative idxs
         if crop:
             scale = (1, 1)
-            self._output_shape = bounds[1, :] - bounds[0, :] + 1
+            self.output_shape = bounds[1, :] - bounds[0, :] + 1
         else:
             scale = (bounds[1, :] - bounds[0, :]) / (shape - 1)
-            self._output_shape = shape
+            self.output_shape = shape
         framemat = parameters_to_projective_matrix(
             # swap x and y indices here
             'affine', [scale[1], 0, bounds[0, 1], 0, scale[0], bounds[0, 0]])
@@ -194,24 +167,24 @@ class ParamvMixin(object):
 
 class TranslateTransform(ParamvMixin, tf.SimilarityTransform):
     """tf.SimilarityTransform with xy translation only"""
-    _ttype = 'translate'
+    ttype = 'translate'
 
 class ScaleTransform(ParamvMixin, tf.SimilarityTransform):
     """tf.SimilarityTransform with scaling only"""
-    _ttype = 'scale'
+    ttype = 'scale'
 
 class RotateTransform(ParamvMixin, tf.SimilarityTransform):
     """tf.SimilarityTransform with rotation only"""
-    _ttype = 'rotate'
+    ttype = 'rotate'
 
 class SimilarityTransform(ParamvMixin, tf.SimilarityTransform):
     """tf.SimilarityTransform with a paramv"""
-    _ttype = 'similarity'
+    ttype = 'similarity'
 
 class AffineTransform(ParamvMixin, tf.AffineTransform):
     """tf.AffineTransform with a paramv"""
-    _ttype = 'affine'
+    ttype = 'affine'
 
 class ProjectiveTransform(ParamvMixin, tf.ProjectiveTransform):
     """tf.ProjectiveTransform with a paramv"""
-    _ttype = 'projective'
+    ttype = 'projective'
