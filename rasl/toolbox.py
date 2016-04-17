@@ -159,7 +159,7 @@ def image_jaco(Iu, Iv, img_size, ttype, paramv):
     elif ttype == 'affine':
         J = [Iu * u, Iu * v, Iu, Iv * u, Iv * v, Iv]
     elif ttype == 'projective':
-        T = np.eye(3.0)
+        T = np.eye(3, dtype=float)
         T[0, :] = paramv[0:3]
         T[1, :] = paramv[3:6]
         T[2, 0:2] = paramv[6:8]

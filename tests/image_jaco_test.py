@@ -108,4 +108,4 @@ def test_projective():
 def test_BOGUS():
     with pytest.raises(ValueError) as info:
         image_jaco(None, None, (4, 3), 'BOGUS', None)
-    assert info.value.message.endswith('BOGUS')
+    assert str(info.value).endswith('BOGUS')

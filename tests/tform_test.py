@@ -124,5 +124,5 @@ def test_tform_inset_scale_bounds():
     tform = AffineTransform([1, 0, 0, .5, 0, 0]).inset(image.shape, bounds, crop=False)
     framed = tform.imtransform(image)
     assert np.isclose(framed[0, 0], image[5, 6])
-    midvalue = image[(5 + 23) / 2, 20]
+    midvalue = image[int((5 + 23) / 2), 20]
     assert np.isclose(framed[-1, -1], midvalue)

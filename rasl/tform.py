@@ -155,7 +155,7 @@ class ParamvMixin(object):
         bounds = np.where(bounds < 0, shape + bounds, bounds) # negative idxs
         if crop:
             scale = (1, 1)
-            self.output_shape = bounds[1, :] - bounds[0, :] + 1
+            self.output_shape = (bounds[1, :] - bounds[0, :] + 1).astype(int)
         else:
             scale = (bounds[1, :] - bounds[0, :]) / (shape - 1)
             self.output_shape = shape
