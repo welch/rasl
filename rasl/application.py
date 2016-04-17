@@ -20,7 +20,8 @@ try:
 except ImportError:
     plt = None
 from .version import __version__
-from .tform import SimilarityTransform, AffineTransform, ProjectiveTransform
+from .tform import (EuclideanTransform, SimilarityTransform, AffineTransform,
+                    ProjectiveTransform)
 from .rasl import rasl
 
 def load_images(path, suffixes=('jpg', 'gif', 'png', 'bmp'), points_too=False):
@@ -105,6 +106,10 @@ def rasl_arg_parser(description, path=None, tform=AffineTransform,
     parser.set_defaults(tform=tform)
     tformspec = parser.add_mutually_exclusive_group()
     tformspec.add_argument(
+        "--euclidean", dest='tform', action='store_const',
+        const=EuclideanTransform,
+        help="Align using rotation and translation")
+    tformspec.add_argument(
         "--similarity", dest='tform', action='store_const',
         const=SimilarityTransform,
         help="Align using a similarity transform (rotate, scale, translate)")
@@ -151,13 +156,17 @@ def rasl_arg_parser(description, path=None, tform=AffineTransform,
 
     return parser
 
-def demo_cmd():
+def demo_cmd(description="load and align images in a directory",
+             path=None, frame=5, grid=(3, 10), tform=AffineTransform):
     """load and align images in a directory, animating the process
 
+    Parameters
+    ----------
+    see rasl_arg_parser
+
     """
-    parser = rasl_arg_parser(
-        """load and align images in a directory, animating the process"""
-    )
+    parser = rasl_arg_parser(description=description, path=path, frame=frame,
+                             grid=grid, tform=tform)
     args = parser.parse_args()
     Image = load_images(args.path)
     if len(Image) < np.prod(args.grid):

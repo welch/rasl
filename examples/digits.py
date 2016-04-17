@@ -22,8 +22,8 @@ import rasl
 
 if __name__ == "__main__":
 
-    gore_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                            "data/Al_Gore")
+    digits_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                              "data/Digits_3")
     rasl.application.demo_cmd(
-        description="Align Al Gore's head while he talks, using RASL",
-        path=gore_dir, frame=(90, 70), grid=(2, 5))
+        description="Align handwritten digits using RASL",
+        path=digits_dir, frame=0, tform=rasl.EuclideanTransform)
