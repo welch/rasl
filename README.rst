@@ -1,7 +1,7 @@
 RASL
 ====
 
-Align linearly correlated images with gross corruption such as occlusions.
+Align linearly correlated images, possibly having gross corruption or occlusions.
 
 Detailed description and installation instructions, along with
 example code and data, are here: https://github.com/welch/rasl
@@ -19,10 +19,10 @@ facial images at varying angles, some including eyeglasses or
 hair). RASL seeks transformations or deformations that will best
 superimpose a batch of images, with pixel accuracy where possible. It
 solves this problem by decomposing the image matrix into a dense
-low-rank component (analogous to "eigenfaces" in facial alignments)
-combined with a sparse error matrix representing any occlusions. The
-decomposition is accomplished with a robust form of PCA via Principal
-Components Pursuit.
+low-rank component (analogous to "eigenfaces" in face-recognition
+literature) combined with a sparse error matrix representing any
+occlusions. The decomposition is accomplished with a robust form of
+PCA via Principal Components Pursuit.
 
 Dependencies
 -------------

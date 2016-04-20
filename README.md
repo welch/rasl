@@ -38,9 +38,16 @@ is otherwise independent of its authors)
 
 Quick Start
 -----------
-(PyPi wheels coming soon)
+```
+> pip install rasl
+> rasl.demo --help
+... (rasl help output) ...
+```
 
-To install in-place so you can run tests and play with the included data sets:
+This isn't going to me much fun without actual image data.  To install
+in-place along with data and examples, so you can run tests and play
+with the included data sets:
+
 ```
 > git clone git@github.com:welch/rasl.git
 > cd rasl
