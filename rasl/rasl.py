@@ -86,17 +86,13 @@ def rasl(Image, InitT=None, maxiter=1000, stop_delta=0.01,
             tform.paramv = tform.paramv + dparamv
 
         # how are we doing?
-        nuclear = np.linalg.norm(np.linalg.svd(A)[1], 1)
-        objective = nuclear + lambd * np.linalg.norm(E, 1)
+        objective = np.linalg.norm(A, 'nuc') + lambd * np.abs(E).sum()
         if show:
             _show_outer(A, E, shape, show)
-            print("[{}] nuclear {} objective {} delta{}".format(
-                itr, nuclear, objective, prev_obj-objective))
+            print("[{}] objective {} delta{}".format(
+                itr, objective, prev_obj-objective))
 
-        if np.abs(prev_obj - objective) < stop_delta:
-            # The use of abs() here is more stringent than the MATLAB
-            # implementation, but solves an early termination problem
-            # (and occasionally runs overlong). Needs work.
+        if (prev_obj - objective) < stop_delta:
             break
 
         prev_obj = objective
