@@ -19,9 +19,9 @@ References
 from __future__ import division, print_function
 import numpy as np
 from skimage.util import img_as_float
-from .inner import inner_ialm
-from .jacobian import framed_gradient, warp_image_gradient
-from .tform import AffineTransform
+from inner import inner_ialm#########################在python3中不能使用.inner这种格式导入自定义的包
+from jacobian import framed_gradient, warp_image_gradient
+from tform import AffineTransform
 
 def rasl(Image, InitT=None, maxiter=1000, stop_delta=0.01,
          normalize=True, show=None):
