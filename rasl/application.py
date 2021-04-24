@@ -54,7 +54,7 @@ def load_images(path, suffixes=('jpg', 'gif', 'png', 'bmp'), points_too=False):
     .. [1] http://perception.csl.illinois.edu/matrix-rank/rasl.html#Code
 
     """
-    images = [img_as_float(skio.imread(os.path.join(path, fname), as_grey=True))
+    images = [img_as_float(skio.imread(os.path.join(path, fname), as_gray=True))
               for fname in os.listdir(path)
               if fname.split('.')[-1] in suffixes]
     shapes = np.array([image.shape for image in images])
