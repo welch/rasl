@@ -43,7 +43,7 @@ def show_images(Image, shape, title="", spacing=2):
         composite[row * bhgt:row * bhgt + image.shape[0],
                   col * bwid:col * bwid + image.shape[1]] = image
 
-    if not imgarrays.has_key(title):
+    if title not in imgarrays:
         # allocate a new row beneath existing imgarrays
         plt.close()
         _, axes = plt.subplots(nrows=len(imgarrays) + 1, ncols=1, squeeze=False)
